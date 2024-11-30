@@ -1,13 +1,14 @@
-'use client'
+'use client'; // This must be the first line in the file
 
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { toast } from '@/components/ui/use-toast'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { toast } from '@/components/ui/use-toast';
+
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function Profile() {
   const [name, setName] = useState('')
