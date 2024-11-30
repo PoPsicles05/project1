@@ -22,64 +22,51 @@ export default function Profile() {
   }, [])
 
   async function fetchProfile() {
-    setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    if (user) {
-      setName(user.user_metadata.full_name || '')
-      setEmail(user.email || '')
-      setContactNo(user.user_metadata.phone || '')
-      setAvatarUrl(user.user_metadata.avatar_url || '')
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setName(user.user_metadata.full_name || '')
+        setEmail(user.email || '')
+        setContactNo(user.user_metadata.phone || '')
+        setAvatarUrl(user.user_metadata.avatar_url || '')
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch profile data.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const { error } = await supabase.auth.updateUser({
-      email,
-      password: password || undefined,
-      data: { full_name: name, phone: contactNo }
-    })
+    try {
+      const { error } = await supabase.auth.updateUser({
+        email,
+        password: password || undefined,
+        data: { full_name: name, phone: contactNo }
+      })
 
-    if (error) {
+      if (error) throw error
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully.",
+      })
+    } catch (error) {
+      console.error('Error updating profile:', error)
       toast({
         title: "Error",
         description: "Failed to update profile. Please try again.",
         variant: "destructive",
       })
-    } else {
-      toast({
-        title: "Success",
-        description: "Profile updated successfully.",
-      })
-    }
-    setLoading(false)
-  }
-
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const { data, error } = await supabase.storage
-        .from('avatars')
-        .upload(`${Date.now()}_${file.name}`, file)
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to upload avatar. Please try again.",
-          variant: "destructive",
-        })
-      } else if (data) {
-        const { data: { publicUrl } } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(data.path)
-        
-        setAvatarUrl(publicUrl)
-        await supabase.auth.updateUser({
-          data: { avatar_url: publicUrl }
-        })
-      }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -101,11 +88,6 @@ export default function Profile() {
                 <AvatarImage src={avatarUrl} alt={name} />
                 <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
               </Avatar>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
@@ -148,7 +130,9 @@ export default function Profile() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit">Update Profile</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Updating...' : 'Update Profile'}
+            </Button>
           </CardFooter>
         </form>
       </Card>
