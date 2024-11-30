@@ -1,77 +1,77 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { toast } from '@/components/ui/use-toast'
-import { supabase } from '@/lib/supabase'
+import { useState, useEffect } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/lib/supabase';
 
 export default function Profile() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [contactNo, setContactNo] = useState('')
-  const [password, setPassword] = useState('')
-  const [avatarUrl, setAvatarUrl] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [contactNo, setContactNo] = useState('');
+  const [password, setPassword] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchProfile()
-  }, [])
+    fetchProfile();
+  }, []);
 
   async function fetchProfile() {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        setName(user.user_metadata.full_name || '')
-        setEmail(user.email || '')
-        setContactNo(user.user_metadata.phone || '')
-        setAvatarUrl(user.user_metadata.avatar_url || '')
+        setName(user.user_metadata.full_name || '');
+        setEmail(user.email || '');
+        setContactNo(user.user_metadata.phone || '');
+        setAvatarUrl(user.user_metadata.avatar_url || '');
       }
     } catch (error) {
-      console.error('Error fetching profile:', error)
+      console.error('Error fetching profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to fetch profile data.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to fetch profile data.',
+        variant: 'destructive',
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({
         email,
         password: password || undefined,
-        data: { full_name: name, phone: contactNo }
-      })
+        data: { full_name: name, phone: contactNo },
+      });
 
-      if (error) throw error
+      if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Profile updated successfully.",
-      })
+        title: 'Success',
+        description: 'Profile updated successfully.',
+      });
     } catch (error) {
-      console.error('Error updating profile:', error)
+      console.error('Error updating profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to update profile. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
-    return <div>Loading profile...</div>
+    return <div>Loading profile...</div>;
   }
 
   return (
@@ -86,7 +86,7 @@ export default function Profile() {
             <div className="flex items-center space-x-4">
               <Avatar className="w-20 h-20">
                 <AvatarImage src={avatarUrl} alt={name} />
-                <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                <AvatarFallback>{name.split(' ').map((n) => n[0]).join('')}</AvatarFallback>
               </Avatar>
             </div>
             <div className="space-y-2">
@@ -137,5 +137,5 @@ export default function Profile() {
         </form>
       </Card>
     </div>
-  )
+  );
 }
